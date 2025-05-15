@@ -53,7 +53,6 @@ function ImageListCardInternal(props: ImageListCardProps) {
     return (
         <Card
             className={`overflow-hidden ${selected ? 'ring-2 ring-primary' : ''}`}>
-            {selected + ''}
             <div className="relative aspect-square group">
                 <canvas
                     ref={canvasRef}
