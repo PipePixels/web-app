@@ -31,7 +31,7 @@ export default function NotFound() {
                     <Button
                         asChild
                         className="bg-[#0088FF] hover:bg-[#0066CC] text-white font-medium px-4 sm:px-6 py-2 text-sm sm:text-base">
-                        <Link href="/public">{texts.button}</Link>
+                        <Link href="/">{texts.button}</Link>
                     </Button>
                 </div>
             </div>

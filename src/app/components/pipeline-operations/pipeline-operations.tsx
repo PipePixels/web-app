@@ -1,32 +1,27 @@
 import { ImageOperationMetadata } from '@/app/components/list-operations/list-operations.model';
 import { OperationCard } from '@/app/components/operation-card/operation-card';
 import { ApplyFilters } from '@/core/application/use-cases/apply-filters';
-import { useContext } from 'react';
-import { ImagesContext } from '@/app/shared/state/images.state';
-import {
-    filesToImageData,
-    imageDataToFile,
-} from '@/app/components/pipeline-operations/pipeline-operations.util';
 import { blur } from '@/adapters/filters/sharpness-clarity/blur';
+import { useImages } from '@/app/components/new/images-context';
 
 export function PipelineOperations({
     operations,
 }: {
     operations: ImageOperationMetadata[];
 }) {
-    const { setState, state } = useContext(ImagesContext);
+    const {
+        state: { images, setImages },
+    } = useImages();
     const applyOperation = (operation: ImageOperationMetadata) => {
         const useCase = new ApplyFilters();
-        filesToImageData(state, (images) => {
-            const res = useCase.apply(images, [blur({ value: 85 })]);
-            const imageConvertFilePromises = res.map((imageData) =>
-                imageDataToFile(imageData),
-            );
-            // @ts-ignore
-            Promise.all(imageConvertFilePromises).then((files: File[]) => {
-                setState(files);
-            });
-        });
+        const imageData = images.map((image) => image.data);
+        const res = useCase.apply(imageData, [blur({ value: 85 })]);
+
+        const imageItems = images.map((d, i) => ({
+            ...d,
+            data: res[i],
+        }));
+        setImages(imageItems);
     };
     return (
         <div className="flex flex-col gap-2">
