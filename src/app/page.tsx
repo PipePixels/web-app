@@ -3,6 +3,7 @@ import React from 'react';
 import { CreditsProvider } from './shared/state/credits-context';
 import { ImageManager } from './components/new/image-manager-section';
 import { ImagesProvider } from './components/new/images-context';
+import Sidebar from './components/filters/sidebar';
 
 export const metadata: Metadata = {
     title: 'PipePixels',
@@ -15,7 +16,7 @@ export default function Home() {
             <CreditsProvider>
                 <ImagesProvider>
                     <div className="flex flex-col md:flex-row flex-1 container mx-auto py-4 px-4 md:px-6 gap-6">
-                        {/*<Sidebar />*/}
+                        <Sidebar />
                         <ImageManager />
                     </div>
                 </ImagesProvider>
