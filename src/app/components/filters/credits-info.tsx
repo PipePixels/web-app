@@ -1,4 +1,3 @@
-import { FilterMetadata } from '@/core/domain/filters/interfaces/operations/filter-metadata';
 import {
     Card,
     CardContent,
@@ -9,12 +8,15 @@ import {
 import { Badge } from '@/app/ui/badge';
 import { CreditCard, Info } from 'lucide-react';
 import type React from 'react';
+import { useFiltersQueue } from '@/app/shared/state/filter-queue.state';
 
 export function CreditsInfo(props: {
     credits: number;
-    queuedFilters: FilterMetadata[];
     totalCreditsRequired: number;
 }) {
+    const {
+        state: { queuedFilters },
+    } = useFiltersQueue();
     return (
         <Card className="mb-6">
             <CardHeader className="pb-3">
@@ -38,11 +40,11 @@ export function CreditsInfo(props: {
                             Required for current filters:
                         </p>
                         <p className="text-xs text-muted-foreground">
-                            {props.queuedFilters.length} filters ×{' '}
-                            {props.queuedFilters.length > 0
+                            {queuedFilters.length} filters ×{' '}
+                            {queuedFilters.length > 0
                                 ? Math.round(
                                       (props.totalCreditsRequired /
-                                          props.queuedFilters.length) *
+                                          queuedFilters.length) *
                                           10,
                                   ) / 10
                                 : 0}{' '}
@@ -69,7 +71,7 @@ export function CreditsInfo(props: {
                         </p>
                     </div>
                 )}
-                {props.queuedFilters.length > 0 &&
+                {queuedFilters.length > 0 &&
                     props.credits >= props.totalCreditsRequired && (
                         <div className="mt-3 p-2 bg-primary/10 border border-primary/20 rounded-md">
                             <p className="text-xs text-primary flex items-center">

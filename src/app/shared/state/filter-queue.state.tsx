@@ -2,18 +2,23 @@
 
 import { createContext, type ReactNode, useContext, useReducer } from 'react';
 import {
-    FilterHandler,
+    FilterOperation,
     FilterType,
 } from '@/core/domain/filters/interfaces/operations/filter-operation';
+import { handlerByType } from '@/adapters/filters/handler-by-type';
+
+export interface FilterQueued {
+    type: FilterType;
+    params: Record<string, unknown>;
+    handler: FilterOperation<never>;
+}
 
 interface FilterQueueContextType {
-    queuedFilters: FilterHandler[];
-    setQueuedFilters: (filters: FilterHandler[]) => void;
+    queuedFilters: FilterQueued[];
 }
 
 const initialState: FilterQueueContextType = {
     queuedFilters: [],
-    setQueuedFilters: () => {},
 };
 
 export enum FilterQueueActionType {
@@ -33,13 +38,44 @@ const FilterQueueContext = createContext<
     { state: FilterQueueContextType; dispatch: Dispatch } | undefined
 >(undefined);
 
-// TODO: Implement the reducer logic to handle filter queue actions
-export const filterQueueReducer = (
+// TODO: Calculate total credits required based on queued filters
+export function filterQueueReducer(
     state: FilterQueueContextType,
     action: FilterQueueAction,
-): FilterQueueContextType => {
-    return state;
-};
+): FilterQueueContextType {
+    const actionType = action.type;
+    switch (action.type) {
+        case FilterQueueActionType.Append: {
+            const type = action.payload;
+            const newFilter: FilterQueued = {
+                type,
+                params: {},
+                handler: handlerByType[type],
+            };
+            return {
+                ...state,
+                queuedFilters: [...state.queuedFilters, newFilter],
+            };
+        }
+        case FilterQueueActionType.Remove: {
+            const type = action.payload;
+            return {
+                ...state,
+                queuedFilters: state.queuedFilters.filter(
+                    (filter) => filter.type !== type,
+                ),
+            };
+        }
+        case FilterQueueActionType.ClearAll: {
+            return {
+                ...state,
+                queuedFilters: [],
+            };
+        }
+        default:
+            throw new Error(`Unhandled action type: ${actionType}`);
+    }
+}
 
 export function FiltersQueueProvider({ children }: { children: ReactNode }) {
     const [state, dispatch] = useReducer(filterQueueReducer, initialState);
