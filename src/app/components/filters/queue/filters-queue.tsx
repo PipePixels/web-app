@@ -1,8 +1,5 @@
-import React, { useState } from 'react';
-import {
-    filterMetadata,
-    FilterMetadata,
-} from '@/core/domain/filters/interfaces/operations/filter-metadata';
+import React, { useCallback } from 'react';
+import { filterMetadata } from '@/core/domain/filters/interfaces/operations/filter-metadata';
 import {
     Card,
     CardContent,
@@ -22,6 +19,15 @@ import { Badge } from '@/app/ui/badge';
 import { Slider } from '@/components/ui/slider';
 import { NoImagesWarning } from '@/app/components/filters/queue/no-images-warning';
 import { AppliedAllImagesWarning } from '@/app/components/filters/queue/applied-all-images-warning';
+import {
+    FilterQueueActionType,
+    useFiltersQueue,
+} from '@/app/shared/state/filter-queue.state';
+import {
+    FilterQueueItemStateActionType,
+    useFilterQueueCollapse,
+} from '@/app/shared/state/filter-queue-item.state';
+import { FilterType } from '@/core/domain/filters/interfaces/operations/filter-operation';
 
 function FilterCardParams(props: {
     param: string;
@@ -52,51 +58,52 @@ function FilterCardParams(props: {
 
 export function FiltersQueue(props: {
     credits: number;
-    hasImages: boolean;
     onApplyFilters: () => Promise<void>;
-    onClearAll: () => void;
     processing: boolean;
-    queuedFilters: FilterMetadata[];
-    totalCreditsRequired: number;
 }) {
-    const { queuedFilters, hasImages } = props;
-    const [openFilters, setOpenFilters] = useState<Record<string, boolean>>({});
+    const { state: filterQueueState, dispatch: filterQueueDispatch } =
+        useFiltersQueue();
+    const { state: expandedTypesState, dispatch: expandedTypesDispatch } =
+        useFilterQueueCollapse();
+    const { queuedFilters } = filterQueueState;
+    const hasImages = queuedFilters.length > 0;
+    const expandedTypes = expandedTypesState.expanded;
 
-    // Toggle the collapsed state of a filter
-    const toggleFilterCollapse = (filterId: string) => {
-        setOpenFilters((prev) => ({
-            ...prev,
-            [filterId]: !prev[filterId],
-        }));
-    };
+    const toggleStateItem = useCallback(
+        (type: FilterType) => {
+            expandedTypesDispatch({
+                type: FilterQueueItemStateActionType.ToggleCollapse,
+                payload: type,
+            });
+        },
+        [expandedTypesDispatch],
+    );
 
-    const onCollapseExpand = () => {
-        // Toggle all filters to be either all open or all closed
-        const allOpen = queuedFilters.every((filter) => openFilters[filter.id]);
-        const newState = !allOpen;
-
-        const newOpenFilters = {};
-        queuedFilters.forEach((filter) => {
-            newOpenFilters[filter.id] = newState;
+    const toggleStateAllItems = useCallback(() => {
+        expandedTypesDispatch({
+            type: FilterQueueItemStateActionType.ToggleCollapseAll,
+            payload: queuedFilters,
         });
-
-        setOpenFilters(newOpenFilters);
-    };
+    }, [expandedTypesDispatch, queuedFilters]);
 
     // Remove a filter from the queue
-    const removeFilter = (index: number) => {
-        const filterId = queuedFilters[index].id;
-        const newQueuedFilters = [...queuedFilters];
-        newQueuedFilters.splice(index, 1);
-        setQueuedFilters(newQueuedFilters);
-
-        // Remove the filter from openFilters state
-        const newOpenFilters = { ...openFilters };
-        delete newOpenFilters[filterId];
-        setOpenFilters(newOpenFilters);
-    };
+    const removeFilter = useCallback(
+        (index: number) => {
+            const filterType = queuedFilters[index].type;
+            filterQueueDispatch({
+                type: FilterQueueActionType.Remove,
+                payload: filterType,
+            });
+            expandedTypesDispatch({
+                type: FilterQueueItemStateActionType.Remove,
+                payload: filterType,
+            });
+        },
+        [expandedTypesDispatch, filterQueueDispatch, queuedFilters],
+    );
 
     // Update filter parameters
+    // TODO: Finalize this
     const updateFilterParam = (
         index: number,
         paramName: string,
@@ -105,7 +112,7 @@ export function FiltersQueue(props: {
         const newQueuedFilters = [...queuedFilters];
         if (newQueuedFilters[index].params) {
             newQueuedFilters[index].params![paramName] = value;
-            setQueuedFilters(newQueuedFilters);
+            // setQueuedFilters(newQueuedFilters);
         }
     };
 
@@ -116,18 +123,18 @@ export function FiltersQueue(props: {
                     Queued Filters
                 </CardTitle>
                 <CardDescription>
-                    {props.hasImages
+                    {hasImages
                         ? 'Drag filters here to apply them in sequence'
                         : 'Upload images first to enable filters'}
                 </CardDescription>
-                {!props.hasImages && <NoImagesWarning />}
+                {!hasImages && <NoImagesWarning />}
 
                 <AppliedAllImagesWarning />
             </CardHeader>
             <CardContent>
                 <div
                     className={`min-h-[120px] space-y-3 rounded-md border border-dashed p-4 ${!hasImages ? 'opacity-60 bg-muted/30' : ''}`}>
-                    {queuedFilters.length === 0 ? (
+                    {!hasImages ? (
                         <div className="flex flex-col items-center justify-center h-20 text-muted-foreground">
                             <p className="text-sm">
                                 {hasImages
@@ -144,18 +151,20 @@ export function FiltersQueue(props: {
                         queuedFilters.map((filter, index) => {
                             // Find the original filter to get its credit cost
                             const originalFilter = filterMetadata.find(
-                                (f) => f.id === filter.id.split('-')[0],
+                                (f) => f.id === filter.type.split('-')[0],
                             );
                             const creditCost = originalFilter?.creditCost || 1;
 
                             return (
-                                <div key={filter.id}>
+                                <div key={filter.type}>
                                     <div
                                         className={`bg-card rounded-lg border shadow-sm ${!hasImages ? 'opacity-60' : ''}`}>
                                         <Collapsible
-                                            open={openFilters[filter.id]}
+                                            open={expandedTypes.has(
+                                                filter.type,
+                                            )}
                                             onOpenChange={() =>
-                                                toggleFilterCollapse(filter.id)
+                                                toggleStateItem(filter.type)
                                             }
                                             className="w-full">
                                             <div className="p-3 flex justify-between items-center">
@@ -181,9 +190,9 @@ export function FiltersQueue(props: {
                                                             variant="ghost"
                                                             size="icon"
                                                             className="h-7 w-7 mr-1">
-                                                            {openFilters[
-                                                                filter.id
-                                                            ] ? (
+                                                            {expandedTypes.has(
+                                                                filter.type,
+                                                            ) ? (
                                                                 <ChevronUp className="h-4 w-4" />
                                                             ) : (
                                                                 <ChevronDown className="h-4 w-4" />
@@ -231,15 +240,13 @@ export function FiltersQueue(props: {
                     )}
                 </div>
 
-                {props.queuedFilters.length > 0 && (
+                {hasImages && (
                     <div className="mt-4 flex justify-between">
                         <Button
                             size="sm"
                             variant="outline"
-                            onClick={onCollapseExpand}>
-                            {props.queuedFilters.every(
-                                (filter) => openFilters[filter.id],
-                            )
+                            onClick={toggleStateAllItems}>
+                            {expandedTypesState.allExpanded
                                 ? 'Collapse All'
                                 : 'Expand All'}
                         </Button>
@@ -249,7 +256,7 @@ export function FiltersQueue(props: {
                     </div>
                 )}
             </CardContent>
-            {props.queuedFilters.length > 0 && props.hasImages && (
+            {hasImages && (
                 <CardFooter className="pt-0">
                     <Button
                         className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
