@@ -74,7 +74,6 @@ export default function Sidebar() {
     };
 
     const filteredCategories = getFiltersByCategory();
-
     return (
         <div className="w-full md:w-80 flex-shrink-0">
             {/*TODO: Implement credit management*/}

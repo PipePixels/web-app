@@ -14,6 +14,10 @@ import {
 import { Search } from 'lucide-react';
 import { Input } from '@/app/ui/input';
 import { FilterCardAvailable } from '@/app/components/filters/available/filter-card-available';
+import {
+    FilterQueueActionType,
+    useFiltersQueue,
+} from '@/app/shared/state/filter-queue.state';
 
 export function AvailableFiltersSection(props: {
     hasImages: boolean;
@@ -25,6 +29,16 @@ export function AvailableFiltersSection(props: {
         filters: FilterMetadata[];
     }[];
 }) {
+    const { state, dispatch } = useFiltersQueue();
+    const hasMatchedFilters = props.filteredCategories.length > 0;
+
+    const addFilter = (filter: FilterMetadata) => {
+        dispatch({
+            type: FilterQueueActionType.Append,
+            payload: filter.id,
+        });
+    };
+
     return (
         <Card>
             <CardHeader className="pb-3">
@@ -51,7 +65,7 @@ export function AvailableFiltersSection(props: {
             <CardContent className="p-0">
                 <div
                     className={`max-h-[400px] overflow-y-auto pr-1.5 pl-3 pb-3 ${!props.hasImages ? 'opacity-60' : ''}`}>
-                    {props.filteredCategories.length === 0 ? (
+                    {!hasMatchedFilters ? (
                         <div className="flex flex-col items-center justify-center h-20 text-muted-foreground p-4">
                             <p className="text-sm">
                                 No filters match your search
@@ -67,11 +81,18 @@ export function AvailableFiltersSection(props: {
                                 </h3>
                                 <div className="space-y-2">
                                     {category.filters.map((filter) => (
-                                        <FilterCardAvailable
-                                            key={filter.id}
-                                            filter={filter}
-                                            hasImages={props.hasImages}
-                                        />
+                                        <a
+                                            onClick={() =>
+                                                props.hasImages &&
+                                                addFilter(filter)
+                                            }
+                                            key={filter.id}>
+                                            <FilterCardAvailable
+                                                key={filter.id}
+                                                filter={filter}
+                                                hasImages={props.hasImages}
+                                            />
+                                        </a>
                                     ))}
                                 </div>
                             </div>

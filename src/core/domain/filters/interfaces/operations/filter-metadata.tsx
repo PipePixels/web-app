@@ -1,4 +1,17 @@
 import { FilterType } from '@/core/domain/filters/interfaces/operations/filter-operation';
+import {
+    ArrowLeftRightIcon,
+    CircleIcon,
+    ContrastIcon,
+    CropIcon,
+    DropletIcon,
+    RotateCwIcon,
+    SearchIcon,
+    SparklesIcon,
+    StarIcon,
+    SunIcon,
+} from 'lucide-react';
+import { ReactElement } from 'react';
 
 export enum FilterCategory {
     Tone = 'tone',
@@ -19,6 +32,7 @@ export interface FilterMetadata<T = unknown> {
     description: string;
     creditCost: number;
     settings?: T;
+    icon?: ReactElement;
 }
 
 export const filterMetadata: FilterMetadata<unknown>[] = [
@@ -34,6 +48,7 @@ export const filterMetadata: FilterMetadata<unknown>[] = [
             min: -100,
             max: 100,
         },
+        icon: <SunIcon />,
     },
     {
         id: FilterType.Contrast,
@@ -46,6 +61,7 @@ export const filterMetadata: FilterMetadata<unknown>[] = [
             min: -100,
             max: 100,
         },
+        icon: <ContrastIcon />,
     },
     {
         id: FilterType.Exposure,
@@ -58,6 +74,7 @@ export const filterMetadata: FilterMetadata<unknown>[] = [
             min: -100,
             max: 100,
         },
+        icon: <SunIcon />,
     },
     {
         id: FilterType.Highlights,
@@ -70,6 +87,7 @@ export const filterMetadata: FilterMetadata<unknown>[] = [
             min: -100,
             max: 100,
         },
+        icon: <SunIcon />,
     },
 
     // Detail filters
@@ -84,6 +102,7 @@ export const filterMetadata: FilterMetadata<unknown>[] = [
             min: 0,
             max: 100,
         },
+        icon: <DropletIcon />,
     },
     {
         id: FilterType.Clarity,
@@ -96,6 +115,7 @@ export const filterMetadata: FilterMetadata<unknown>[] = [
             min: -100,
             max: 100,
         },
+        icon: <SearchIcon />,
     },
     {
         id: FilterType.Sharpen,
@@ -108,6 +128,7 @@ export const filterMetadata: FilterMetadata<unknown>[] = [
             min: 0,
             max: 100,
         },
+        icon: <SearchIcon />,
     },
     {
         id: FilterType.Smooth,
@@ -120,6 +141,7 @@ export const filterMetadata: FilterMetadata<unknown>[] = [
             min: 0,
             max: 100,
         },
+        icon: <DropletIcon />,
     },
 
     // Effect filters
@@ -134,6 +156,7 @@ export const filterMetadata: FilterMetadata<unknown>[] = [
             min: 0,
             max: 100,
         },
+        icon: <StarIcon />,
     },
     {
         id: FilterType.Glamour,
@@ -146,6 +169,7 @@ export const filterMetadata: FilterMetadata<unknown>[] = [
             min: 0,
             max: 100,
         },
+        icon: <SparklesIcon />,
     },
     {
         id: FilterType.Grain,
@@ -158,6 +182,7 @@ export const filterMetadata: FilterMetadata<unknown>[] = [
             min: 0,
             max: 100,
         },
+        icon: <CircleIcon />,
     },
     {
         id: FilterType.Monochrome,
@@ -166,12 +191,13 @@ export const filterMetadata: FilterMetadata<unknown>[] = [
         description:
             'Converts the image to black and white while maintaining contrast and detail.',
         creditCost: 1,
+        icon: <CircleIcon />,
     },
 
     // Transform filters
     {
         id: FilterType.Resize,
-        name: 'resize',
+        name: 'Resize',
         category: FilterCategory.Transform,
         description:
             'Resizes the image while maintaining its aspect ratio. Values above 100 enlarge, below 100 reduce size.',
@@ -180,6 +206,7 @@ export const filterMetadata: FilterMetadata<unknown>[] = [
             width: 256,
             height: 256,
         },
+        icon: <CropIcon />,
     },
     {
         id: FilterType.Rotate,
@@ -192,6 +219,7 @@ export const filterMetadata: FilterMetadata<unknown>[] = [
             min: 0,
             max: 360,
         },
+        icon: <RotateCwIcon />,
     },
     {
         id: FilterType.Flip,
@@ -204,6 +232,7 @@ export const filterMetadata: FilterMetadata<unknown>[] = [
             horizontal: false,
             vertical: false,
         },
+        icon: <ArrowLeftRightIcon />,
     },
 ];
 

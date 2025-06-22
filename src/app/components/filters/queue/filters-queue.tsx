@@ -1,5 +1,8 @@
 import React, { useCallback } from 'react';
-import { filterMetadata } from '@/core/domain/filters/interfaces/operations/filter-metadata';
+import {
+    FilterMetadata,
+    filterMetadata,
+} from '@/core/domain/filters/interfaces/operations/filter-metadata';
 import {
     Card,
     CardContent,
@@ -28,6 +31,7 @@ import {
     useFilterQueueCollapse,
 } from '@/app/shared/state/filter-queue-item.state';
 import { FilterType } from '@/core/domain/filters/interfaces/operations/filter-operation';
+import { useImagesSub } from '@/app/components/new/images-context';
 
 function FilterCardParams(props: {
     param: string;
@@ -56,6 +60,15 @@ function FilterCardParams(props: {
     );
 }
 
+const metadataByType: { [key in FilterType]: FilterMetadata } =
+    filterMetadata.reduce(
+        (acc, filter) => {
+            acc[filter.id] = filter;
+            return acc;
+        },
+        {} as { [key in FilterType]: FilterMetadata },
+    );
+
 export function FiltersQueue(props: {
     credits: number;
     onApplyFilters: () => Promise<void>;
@@ -66,25 +79,22 @@ export function FiltersQueue(props: {
     const { state: expandedTypesState, dispatch: expandedTypesDispatch } =
         useFilterQueueCollapse();
     const { queuedFilters } = filterQueueState;
-    const hasImages = queuedFilters.length > 0;
+    const { hasImages } = useImagesSub();
     const expandedTypes = expandedTypesState.expanded;
 
-    const toggleStateItem = useCallback(
-        (type: FilterType) => {
-            expandedTypesDispatch({
-                type: FilterQueueItemStateActionType.ToggleCollapse,
-                payload: type,
-            });
-        },
-        [expandedTypesDispatch],
-    );
+    const toggleStateItem = (type: FilterType) => {
+        expandedTypesDispatch({
+            type: FilterQueueItemStateActionType.ToggleCollapse,
+            payload: type,
+        });
+    };
 
-    const toggleStateAllItems = useCallback(() => {
+    const toggleStateAllItems = () => {
         expandedTypesDispatch({
             type: FilterQueueItemStateActionType.ToggleCollapseAll,
             payload: queuedFilters,
         });
-    }, [expandedTypesDispatch, queuedFilters]);
+    };
 
     // Remove a filter from the queue
     const removeFilter = useCallback(
@@ -101,6 +111,12 @@ export function FiltersQueue(props: {
         },
         [expandedTypesDispatch, filterQueueDispatch, queuedFilters],
     );
+
+    const clearAll = () => {
+        filterQueueDispatch({
+            type: FilterQueueActionType.ClearAll,
+        });
+    };
 
     // Update filter parameters
     // TODO: Finalize this
@@ -124,7 +140,7 @@ export function FiltersQueue(props: {
                 </CardTitle>
                 <CardDescription>
                     {hasImages
-                        ? 'Drag filters here to apply them in sequence'
+                        ? 'Tap on a filter to add it to the queue'
                         : 'Upload images first to enable filters'}
                 </CardDescription>
                 {!hasImages && <NoImagesWarning />}
@@ -132,113 +148,83 @@ export function FiltersQueue(props: {
                 <AppliedAllImagesWarning />
             </CardHeader>
             <CardContent>
-                <div
-                    className={`min-h-[120px] space-y-3 rounded-md border border-dashed p-4 ${!hasImages ? 'opacity-60 bg-muted/30' : ''}`}>
-                    {!hasImages ? (
-                        <div className="flex flex-col items-center justify-center h-20 text-muted-foreground">
-                            <p className="text-sm">
-                                {hasImages
-                                    ? 'No filters queued'
-                                    : 'Filters disabled'}
-                            </p>
-                            <p className="text-xs">
-                                {hasImages
-                                    ? 'Drag filters from below to add them'
-                                    : 'Upload images to enable filters'}
-                            </p>
-                        </div>
-                    ) : (
-                        queuedFilters.map((filter, index) => {
-                            // Find the original filter to get its credit cost
-                            const originalFilter = filterMetadata.find(
-                                (f) => f.id === filter.type.split('-')[0],
-                            );
-                            const creditCost = originalFilter?.creditCost || 1;
-
-                            return (
-                                <div key={filter.type}>
-                                    <div
-                                        className={`bg-card rounded-lg border shadow-sm ${!hasImages ? 'opacity-60' : ''}`}>
-                                        <Collapsible
-                                            open={expandedTypes.has(
-                                                filter.type,
-                                            )}
-                                            onOpenChange={() =>
-                                                toggleStateItem(filter.type)
-                                            }
-                                            className="w-full">
-                                            <div className="p-3 flex justify-between items-center">
-                                                <div className="flex items-center gap-2">
-                                                    <div className="bg-primary/10 p-1.5 rounded-md text-primary">
-                                                        {filter.icon}
-                                                    </div>
-                                                    <span className="font-medium">
-                                                        {filter.name}
-                                                    </span>
-                                                    <Badge
-                                                        variant="outline"
-                                                        className="ml-1 text-xs">
-                                                        {creditCost} credit
-                                                        {creditCost > 1
-                                                            ? 's'
-                                                            : ''}
-                                                    </Badge>
-                                                </div>
-                                                <div className="flex items-center">
-                                                    <CollapsibleTrigger asChild>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="h-7 w-7 mr-1">
-                                                            {expandedTypes.has(
-                                                                filter.type,
-                                                            ) ? (
-                                                                <ChevronUp className="h-4 w-4" />
-                                                            ) : (
-                                                                <ChevronDown className="h-4 w-4" />
-                                                            )}
-                                                        </Button>
-                                                    </CollapsibleTrigger>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        className="h-7 w-7"
-                                                        onClick={() =>
-                                                            removeFilter(index)
-                                                        }>
-                                                        <X className="h-4 w-4" />
-                                                    </Button>
-                                                </div>
-                                            </div>
-
-                                            <CollapsibleContent className="px-3 pb-3">
-                                                {filter.params &&
-                                                    Object.entries(
-                                                        filter.params,
-                                                    ).map(([param, value]) => (
-                                                        <FilterCardParams
-                                                            key={param}
-                                                            param={param}
-                                                            value={value}
-                                                            onValueChange={(
-                                                                values,
-                                                            ) =>
-                                                                updateFilterParam(
-                                                                    index,
-                                                                    param,
-                                                                    values[0],
-                                                                )
-                                                            }
-                                                        />
-                                                    ))}
-                                            </CollapsibleContent>
-                                        </Collapsible>
+                {queuedFilters.map((filter, index) => {
+                    const filterMeta = metadataByType[filter.type];
+                    const creditCost = filterMeta.creditCost ?? 1;
+                    return (
+                        <div
+                            className={`bg-card rounded-lg border shadow-sm ${!hasImages ? 'opacity-60' : ''}`}
+                            key={filter.type}>
+                            <Collapsible
+                                open={expandedTypes.has(filter.type)}
+                                onOpenChange={() =>
+                                    toggleStateItem(filter.type)
+                                }
+                                className="w-full">
+                                <div className="p-3 flex justify-between items-center">
+                                    <div className="flex items-center gap-2">
+                                        <div className="bg-primary/10 p-1.5 rounded-md text-primary">
+                                            {filterMeta.icon}
+                                        </div>
+                                        <span className="font-medium">
+                                            {filterMeta.name}
+                                        </span>
+                                        <Badge
+                                            variant="outline"
+                                            className="ml-1 text-xs">
+                                            {creditCost} credit
+                                            {creditCost > 1 ? 's' : ''}
+                                        </Badge>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <CollapsibleTrigger asChild>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-7 w-7 mr-1">
+                                                {expandedTypes.has(
+                                                    filter.type,
+                                                ) ? (
+                                                    <ChevronUp className="h-4 w-4" />
+                                                ) : (
+                                                    <ChevronDown className="h-4 w-4" />
+                                                )}
+                                            </Button>
+                                        </CollapsibleTrigger>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-7 w-7"
+                                            onClick={() => removeFilter(index)}>
+                                            <X className="h-4 w-4" />
+                                        </Button>
                                     </div>
                                 </div>
-                            );
-                        })
-                    )}
-                </div>
+
+                                <CollapsibleContent className="px-3 pb-3">
+                                    Parameters:
+                                    {filter.params &&
+                                        Object.entries(filter.params).map(
+                                            ([param, value]) => (
+                                                <FilterCardParams
+                                                    key={param}
+                                                    param={param}
+                                                    value={value}
+                                                    onValueChange={(values) =>
+                                                        updateFilterParam(
+                                                            index,
+                                                            param,
+                                                            values[0],
+                                                        )
+                                                    }
+                                                />
+                                            ),
+                                        )}
+                                </CollapsibleContent>
+                            </Collapsible>
+                        </div>
+                    );
+                })}
 
                 {hasImages && (
                     <div className="mt-4 flex justify-between">
@@ -250,7 +236,7 @@ export function FiltersQueue(props: {
                                 ? 'Collapse All'
                                 : 'Expand All'}
                         </Button>
-                        <Button size="sm" onClick={props.onClearAll}>
+                        <Button size="sm" onClick={clearAll}>
                             Clear All
                         </Button>
                     </div>
