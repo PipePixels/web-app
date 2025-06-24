@@ -21,15 +21,15 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
     const addCredits = (amount: number) => {
         setCredits((prev) => prev + amount);
     };
+    const value: CreditsContextType = {
+        credits,
+        consumeCredits,
+        addCredits,
+        enableCreditSystem: false,
+    };
 
     return (
-        <CreditsContext.Provider
-            value={{
-                credits,
-                consumeCredits,
-                addCredits,
-                enableCreditSystem: false,
-            }}>
+        <CreditsContext.Provider value={value}>
             {children}
         </CreditsContext.Provider>
     );
