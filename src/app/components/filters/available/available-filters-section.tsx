@@ -19,6 +19,7 @@ import {
     useFiltersQueue,
 } from '@/app/shared/state/filter-queue.state';
 
+// TODO: Use state to hide filters which are already in the queue
 export function AvailableFiltersSection(props: {
     hasImages: boolean;
     value: string;
@@ -39,6 +40,8 @@ export function AvailableFiltersSection(props: {
         });
     };
 
+    // TODO: Reduce the number of re-renders by using a memoized version of the filter card
+    // TODO: Reduce complexity of html
     return (
         <Card>
             <CardHeader className="pb-3">

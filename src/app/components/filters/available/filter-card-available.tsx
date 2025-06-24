@@ -1,8 +1,8 @@
 import { FilterMetadata } from '@/core/domain/filters/interfaces/operations/filter-metadata';
 import type React from 'react';
-import { Badge } from '@/app/ui/badge';
 import { FilterCardTooltip } from '@/app/components/filters/filter-card-tooltip';
 
+// TODO: Improve semantic HTML, rename prop 'hasImages' to 'disabled'
 export function FilterCardAvailable(props: {
     filter: FilterMetadata;
     hasImages: boolean;
@@ -22,10 +22,6 @@ export function FilterCardAvailable(props: {
             <div className="flex-1 min-w-0">
                 <div className="flex items-center">
                     <span className="text-sm font-medium">{filter.name}</span>
-                    <Badge variant="outline" className="ml-2 text-xs">
-                        {filter.creditCost} credit
-                        {filter.creditCost > 1 ? 's' : ''}
-                    </Badge>
                 </div>
             </div>
 
