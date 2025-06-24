@@ -16,7 +16,7 @@ import { FilterCollapseProvider } from '@/app/shared/state/filter-queue-item.sta
 
 export default function Sidebar() {
     const { hasImages } = useImagesSub();
-    const { credits, consumeCredits } = useCredits();
+    const { credits, consumeCredits, enableCreditSystem } = useCredits();
     const [availableFilters] = useState<FilterMetadata[]>(filterMetadata);
     const [searchQuery, setSearchQuery] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
@@ -77,7 +77,7 @@ export default function Sidebar() {
     return (
         <div className="w-full md:w-80 flex-shrink-0">
             {/*TODO: Implement credit management*/}
-            {false && (
+            {enableCreditSystem && (
                 <CreditsInfo credits={credits} totalCreditsRequired={0} />
             )}
 

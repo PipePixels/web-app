@@ -1,10 +1,11 @@
 import { Github, Linkedin, Twitter } from 'lucide-react';
 import { Button } from '@/app/ui/button';
 import Link from 'next/link';
+import { ComponentType, SVGProps } from 'react';
 
 interface FooterSocialLinkData {
     href: string;
-    Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+    Icon: ComponentType<SVGProps<SVGSVGElement>>;
     label: string;
 }
 
