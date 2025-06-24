@@ -58,19 +58,19 @@ export function FiltersQueue(props: {
         [expandedTypesDispatch, filterQueueDispatch, queuedFilters],
     );
 
-    // Update filter parameters
-    // TODO: Finalize this
-    const updateFilterParam = (
-        index: number,
-        paramName: string,
-        value: number,
-    ) => {
-        const newQueuedFilters = [...queuedFilters];
-        if (newQueuedFilters[index].params) {
-            newQueuedFilters[index].params![paramName] = value;
-            // setQueuedFilters(newQueuedFilters);
-        }
-    };
+    const updateFilterParam = useCallback(
+        (type: FilterType, params: Record<string, unknown>) => {
+            filterQueueDispatch({
+                type: FilterQueueActionType.UpdateParams,
+                payload: {
+                    type: type,
+                    params,
+                },
+            });
+        },
+        [filterQueueDispatch],
+    );
+
     return (
         <Card className="mb-6">
             <CardHeader className="pb-3">
@@ -95,6 +95,7 @@ export function FiltersQueue(props: {
                         hasImages={hasImages}
                         onToggleStateItem={toggleStateItem}
                         onRemoveFilter={removeFilter}
+                        onUpdateFilterParam={updateFilterParam}
                     />
                 </div>
             </CardContent>

@@ -24,13 +24,19 @@ const metadataByType: { [key in FilterType]: FilterMetadata } =
         {} as { [key in FilterType]: FilterMetadata },
     );
 
-export function FilterCardList(props: {
+export type FilterCardListProps = {
     filters: FilterQueued[];
     hasImages: boolean;
     expandedTypes: Set<FilterType>;
     onRemoveFilter: (index: number) => void;
     onToggleStateItem: (type: FilterType) => void;
-}) {
+    onUpdateFilterParam: (
+        type: FilterType,
+        params: Record<string, unknown>,
+    ) => void;
+};
+
+export function FilterCardList(props: FilterCardListProps) {
     const {
         filters,
         hasImages,
@@ -38,6 +44,8 @@ export function FilterCardList(props: {
         onToggleStateItem,
         onRemoveFilter,
     } = props;
+    const { onUpdateFilterParam } = props;
+
     return filters.map((filter, index) => {
         const filterMeta = metadataByType[filter.type];
         return (
@@ -82,7 +90,10 @@ export function FilterCardList(props: {
 
                     <CollapsibleContent>
                         <Separator className="my-4" />
-                        <FilterCardParams metadata={filterMeta} />
+                        <FilterCardParams
+                            metadata={filterMeta}
+                            onUpdateParams={onUpdateFilterParam}
+                        />
                     </CollapsibleContent>
                 </Collapsible>
             </div>
