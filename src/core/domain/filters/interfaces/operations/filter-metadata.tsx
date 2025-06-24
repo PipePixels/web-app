@@ -236,6 +236,25 @@ export const filterMetadata: FilterMetadata<unknown>[] = [
     },
 ];
 
+/**
+ * A Set containing filter types that have settings that are a single number value
+ * with a min and max value.
+ */
+export const filterSingleNumberSettings = new Set<FilterType>([
+    FilterType.Brightness,
+    FilterType.Contrast,
+    FilterType.Exposure,
+    FilterType.Highlights,
+    FilterType.Blur,
+    FilterType.Clarity,
+    FilterType.Sharpen,
+    FilterType.Smooth,
+    FilterType.Bloom,
+    FilterType.Glamour,
+    FilterType.Grain,
+    FilterType.Rotate,
+]);
+
 export const filterCategories: { id: FilterCategory; name: string }[] = [
     { id: FilterCategory.Tone, name: 'Tone Adjustments' },
     { id: FilterCategory.Detail, name: 'Detail Enhancement' },
