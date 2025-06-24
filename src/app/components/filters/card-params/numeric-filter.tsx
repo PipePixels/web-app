@@ -19,7 +19,7 @@ function NumericFilterInternal({
 
     useEffect(() => {
         onUpdate(value);
-    }, [value]);
+    }, [onUpdate, value]);
 
     return (
         <div className="grid grid-cols-[1fr_8ch] gap-2">

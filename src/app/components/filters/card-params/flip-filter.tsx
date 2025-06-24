@@ -19,7 +19,7 @@ function FlipFilterInternal({ onUpdate }: FlipFilterProps) {
 
     useEffect(() => {
         onUpdate(state);
-    }, [state]);
+    }, [onUpdate, state]);
 
     const toggle = (key: keyof FlipParams) => {
         setState((prev) => ({
