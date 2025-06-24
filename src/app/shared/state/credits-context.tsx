@@ -3,9 +3,10 @@
 import { createContext, type ReactNode, useContext, useState } from 'react';
 
 interface CreditsContextType {
-    credits: number;
-    consumeCredits: (amount: number) => void;
     addCredits: (amount: number) => void;
+    consumeCredits: (amount: number) => void;
+    credits: number;
+    enableCreditSystem: boolean;
 }
 
 const CreditsContext = createContext<CreditsContextType | undefined>(undefined);
@@ -27,6 +28,7 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
                 credits,
                 consumeCredits,
                 addCredits,
+                enableCreditSystem: false,
             }}>
             {children}
         </CreditsContext.Provider>
