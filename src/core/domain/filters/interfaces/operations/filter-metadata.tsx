@@ -255,6 +255,12 @@ export const filterSingleNumberSettings = new Set<FilterType>([
     FilterType.Rotate,
 ]);
 
+export function isFilterNumeric(
+    filter: FilterMetadata,
+): filter is FilterMetadata<FilterBasicSettings> {
+    return filterSingleNumberSettings.has(filter.id);
+}
+
 export const filterCategories: { id: FilterCategory; name: string }[] = [
     { id: FilterCategory.Tone, name: 'Tone Adjustments' },
     { id: FilterCategory.Detail, name: 'Detail Enhancement' },

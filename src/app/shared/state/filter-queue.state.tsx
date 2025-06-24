@@ -25,11 +25,16 @@ export enum FilterQueueActionType {
     Append = 'PUSH',
     Remove = 'REMOVE',
     ClearAll = 'CLEAR_ALL',
+    UpdateParams = 'UPDATE_PARAMS',
 }
 
 type FilterQueueAction =
     | { type: FilterQueueActionType.Append; payload: FilterType }
     | { type: FilterQueueActionType.Remove; payload: FilterType }
+    | {
+          type: FilterQueueActionType.UpdateParams;
+          payload: { type: FilterType; params: Record<string, unknown> };
+      }
     | { type: FilterQueueActionType.ClearAll };
 
 type Dispatch = (action: FilterQueueAction) => void;
@@ -57,6 +62,7 @@ export function filterQueueReducer(
                 queuedFilters: [...state.queuedFilters, newFilter],
             };
         }
+
         case FilterQueueActionType.Remove: {
             const type = action.payload;
             return {
@@ -66,6 +72,26 @@ export function filterQueueReducer(
                 ),
             };
         }
+
+        case FilterQueueActionType.UpdateParams: {
+            const { type, params } = action.payload;
+            const { queuedFilters } = state;
+            const queueUpdated = queuedFilters.map((filter) => {
+                if (filter.type === type) {
+                    return {
+                        ...filter,
+                        params,
+                    };
+                }
+                return filter;
+            });
+            console.log(queueUpdated);
+            return {
+                ...state,
+                queuedFilters: queueUpdated,
+            };
+        }
+
         case FilterQueueActionType.ClearAll: {
             return {
                 ...state,
