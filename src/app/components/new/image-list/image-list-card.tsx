@@ -20,7 +20,6 @@ export type ImageListCardProps = {
     onPreview: (image: ImageItem) => void;
 };
 
-// TODO: Memoize this
 function ImageListCardInternal(props: ImageListCardProps) {
     console.log(`RENDERED IMAGE CARD ${props.image.name}`);
     const {

@@ -1,13 +1,13 @@
 import { Upload } from 'lucide-react';
 import { Button } from '@/app/ui/button';
 import { DropzoneInputProps } from 'react-dropzone';
+import { memo } from 'react';
 
 export interface UploadImageAreaProps {
     getInputProps: () => DropzoneInputProps;
 }
 
-// TODO: Memoize this
-export function UploadImageArea(props: UploadImageAreaProps) {
+function UploadImageAreaInternal(props: UploadImageAreaProps) {
     const { getInputProps } = props;
 
     return (
@@ -31,3 +31,5 @@ export function UploadImageArea(props: UploadImageAreaProps) {
         </div>
     );
 }
+
+export const UploadImageArea = memo(UploadImageAreaInternal);

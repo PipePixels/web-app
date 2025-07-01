@@ -1,7 +1,7 @@
 import { Upload } from 'lucide-react';
+import { memo } from 'react';
 
-// TODO: Memoize this
-export function UploadImageDragArea() {
+function UploadImageDragAreaInternal() {
     return (
         <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center rounded-lg z-10">
             <div className="text-center p-8 rounded-lg">
@@ -11,3 +11,5 @@ export function UploadImageDragArea() {
         </div>
     );
 }
+
+export const UploadImageDragArea = memo(UploadImageDragAreaInternal);
