@@ -156,7 +156,6 @@ export const imagesReducer = (
             };
         }
 
-        // TODO: Implement toggle
         case ImagesActionType.SelectAll: {
             const shouldSelectAll = state.allSelected === false;
 
