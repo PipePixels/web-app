@@ -18,26 +18,37 @@ import { exposure } from '@/adapters/filters/lighting-contrast/exposure';
 import { highlight } from '@/adapters/filters/lighting-contrast/highlight';
 import { sharpen } from '@/adapters/filters/sharpness-clarity/sharpen';
 import { smooth } from '@/adapters/filters/sharpness-clarity/smooth';
+import { resize } from './transform/resize';
+import { rotate } from './transform/rotate';
+import { flip } from './transform/flip';
 
 export const handlerByType: Record<FilterType, FilterOperation<never>> = {
+    // Color filters
     [FilterType.Saturation]: saturation,
     [FilterType.Temperature]: temperature,
     [FilterType.Tint]: tint,
     [FilterType.Vibrance]: vibrance,
+
+    // Creative effects filters
     [FilterType.Bloom]: bloom,
     [FilterType.Glamour]: glamour,
     [FilterType.Grain]: grain,
+    [FilterType.Monochrome]: monochrome,
+
+    // Lighting and contrast filters
     [FilterType.Brightness]: brightness,
     [FilterType.Contrast]: contrast,
     [FilterType.Exposure]: exposure,
     [FilterType.Highlights]: highlight,
+
+    // Sharpness and clarity filters
     [FilterType.Blur]: blur,
     [FilterType.Clarity]: clarity,
     [FilterType.Sharpen]: sharpen,
     [FilterType.Smooth]: smooth,
-    [FilterType.Monochrome]: monochrome,
-    // TODO: Implement the handlers for the following filters
-    [FilterType.Resize]: tint,
-    [FilterType.Rotate]: tint,
-    [FilterType.Flip]: tint,
+
+    // Transform filters
+    [FilterType.Resize]: resize,
+    [FilterType.Rotate]: rotate,
+    [FilterType.Flip]: flip,
 };
