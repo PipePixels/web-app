@@ -8,21 +8,10 @@ import {
 import { Button } from '@/app/ui/button';
 import { ChevronDown, ChevronUp, X } from 'lucide-react';
 import React from 'react';
-import {
-    filterMetadata,
-    FilterMetadata,
-} from '@/core/domain/filters/interfaces/operations/filter-metadata';
-import { FilterCardParams } from '@/app/components/filters/queue/filter-card-params';
+import { FilterCardParams } from '@/app/components/filters/queue/filter-card-params/filter-card-params';
 import { Separator } from '@/components/ui/separator';
 
-const metadataByType: { [key in FilterType]: FilterMetadata } =
-    filterMetadata.reduce(
-        (acc, filter) => {
-            acc[filter.id] = filter;
-            return acc;
-        },
-        {} as { [key in FilterType]: FilterMetadata },
-    );
+import { filterMetadataMap } from '@/core/domain/filters/filter-metadata/filter-metadata.const';
 
 export type FilterCardListProps = {
     filters: FilterQueued[];
@@ -47,7 +36,7 @@ export function FilterCardList(props: FilterCardListProps) {
     const { onUpdateFilterParam } = props;
 
     return filters.map((filter, index) => {
-        const filterMeta = metadataByType[filter.type];
+        const filterMeta = filterMetadataMap[filter.type];
         return (
             <div
                 className={`bg-card p-3 rounded-lg border shadow-sm ${!hasImages ? 'opacity-60' : ''}`}

@@ -1,7 +1,7 @@
 import {
     FilterCategory,
     FilterMetadata,
-} from '@/core/domain/filters/interfaces/operations/filter-metadata';
+} from '@/core/domain/filters/filter-metadata/filter-metadata';
 import type React from 'react';
 import { ChangeEventHandler } from 'react';
 import {

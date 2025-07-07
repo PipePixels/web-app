@@ -1,4 +1,4 @@
-import { FilterMetadata } from '@/core/domain/filters/interfaces/operations/filter-metadata';
+import { FilterMetadata } from '@/core/domain/filters/filter-metadata/filter-metadata';
 import type React from 'react';
 import { FilterCardTooltip } from '@/app/components/filters/filter-card-tooltip';
 

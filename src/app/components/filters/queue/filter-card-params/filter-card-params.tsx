@@ -1,17 +1,16 @@
-import {
-    FilterMetadata,
-    isFilterNumeric,
-} from '@/core/domain/filters/interfaces/operations/filter-metadata';
 import { FilterType } from '@/core/domain/filters/interfaces/operations/filter-operation';
-import { NumericFilter } from '../card-params/numeric-filter';
-import { FlipFilter } from '../card-params/flip-filter';
+import { NumericFilter } from '../../card-params/numeric-filter';
+import { FlipFilter } from '../../card-params/flip-filter';
+import { memo } from 'react';
+import { isFilterNumeric } from '@/core/domain/filters/filter-metadata/filter-metadata.util';
+import { FilterMetadata } from '@/core/domain/filters/filter-metadata/filter-metadata';
 
 export type FilterCardParamsProps = {
     metadata: FilterMetadata;
     onUpdateParams: (f: FilterType, params: Record<string, unknown>) => void;
 };
 
-export function FilterCardParams({
+function FilterCardParamsInternal({
     metadata,
     onUpdateParams,
 }: FilterCardParamsProps) {
@@ -47,3 +46,5 @@ export function FilterCardParams({
         `Tipo de filtro não suportado: ${metadata.id} - ${metadata.name}`,
     );
 }
+
+export const FilterCardParams = memo(FilterCardParamsInternal);

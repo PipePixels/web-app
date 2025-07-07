@@ -3,21 +3,22 @@ import type React from 'react';
 import { useState } from 'react';
 import { useImagesSub } from '../new/images-context';
 import { useCredits } from '../../shared/state/credits-context';
-import {
-    filterCategories,
-    FilterMetadata,
-    filterMetadata,
-} from '@/core/domain/filters/interfaces/operations/filter-metadata';
+import { FilterMetadata } from '@/core/domain/filters/filter-metadata/filter-metadata';
 import { Separator } from '@/components/ui/separator';
 import { CreditsInfo } from '@/app/components/filters/credits-info';
 import { FiltersQueue } from '@/app/components/filters/queue/filters-queue';
 import { AvailableFiltersSection } from '@/app/components/filters/available/available-filters-section';
 import { FilterCollapseProvider } from '@/app/shared/state/filter-queue-item.state';
+import {
+    filterCategories,
+    filterMetadata,
+} from '@/core/domain/filters/filter-metadata/filter-metadata.const';
 
 export default function Sidebar() {
     const { hasImages } = useImagesSub();
     const { credits, consumeCredits, enableCreditSystem } = useCredits();
-    const [availableFilters] = useState<FilterMetadata[]>(filterMetadata);
+    const [availableFilters] =
+        useState<ReadonlyArray<FilterMetadata>>(filterMetadata);
     const [searchQuery, setSearchQuery] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
     const [, setApplyingCredits] = useState(false);
