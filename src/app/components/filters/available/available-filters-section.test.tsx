@@ -31,7 +31,7 @@ jest.mock('./no-filters-message', () => ({
 }));
 
 jest.mock('./filter-category-container', () => ({
-    FilterCategory: jest.fn(({ category }) => (
+    FilterCategoryContainer: jest.fn(({ category }) => (
         <div data-testid="filter-category">
             <h3>{category.name}</h3>
         </div>
