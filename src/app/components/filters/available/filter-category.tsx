@@ -23,7 +23,7 @@ function FilterCategoryInternal({
                 {category.filters.map((filter) => (
                     <li key={filter.id} role="listitem">
                         <button
-                            onClick={() => hasImages && onAddFilter(filter)}
+                            onClick={() => onAddFilter(filter)}
                             className="w-full text-left"
                             disabled={!hasImages}>
                             <FilterCardAvailable

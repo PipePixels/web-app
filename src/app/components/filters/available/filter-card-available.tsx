@@ -1,12 +1,14 @@
 import { FilterMetadata } from '@/core/domain/filters/filter-metadata/filter-metadata';
-import type React from 'react';
+import { memo } from 'react';
 import { FilterCardTooltip } from '@/app/components/filters/filter-card-tooltip';
 
 // TODO: Improve semantic HTML, rename prop 'hasImages' to 'disabled'
-export function FilterCardAvailable(props: {
+export type FilterCardAvailableProps = {
     filter: FilterMetadata;
     hasImages: boolean;
-}) {
+};
+
+function FilterCardAvailableInternal(props: FilterCardAvailableProps) {
     const { filter, hasImages } = props;
     return (
         <div
@@ -29,3 +31,5 @@ export function FilterCardAvailable(props: {
         </div>
     );
 }
+
+export const FilterCardAvailable = memo(FilterCardAvailableInternal);
