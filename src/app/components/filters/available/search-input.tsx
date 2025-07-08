@@ -2,11 +2,11 @@ import React, { ChangeEventHandler, memo } from 'react';
 import { Search } from 'lucide-react';
 import { Input } from '@/app/ui/input';
 
-interface SearchInputProps {
+export type SearchInputProps = {
     value: string;
     onSearch: ChangeEventHandler<HTMLInputElement>;
     disabled: boolean;
-}
+};
 
 function SearchInputInternal({ value, onSearch, disabled }: SearchInputProps) {
     return (

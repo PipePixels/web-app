@@ -1,9 +1,5 @@
-import {
-    FilterCategory,
-    FilterMetadata,
-} from '@/core/domain/filters/filter-metadata/filter-metadata';
-import type React from 'react';
-import { ChangeEventHandler } from 'react';
+import { FilterMetadata } from '@/core/domain/filters/filter-metadata/filter-metadata';
+import React, { memo, useCallback } from 'react';
 import {
     Card,
     CardContent,
@@ -11,37 +7,42 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import { Search } from 'lucide-react';
-import { Input } from '@/app/ui/input';
-import { FilterCardAvailable } from '@/app/components/filters/available/filter-card-available';
 import {
     FilterQueueActionType,
     useFiltersQueue,
 } from '@/app/shared/state/filter-queue.state';
+import { SearchInput } from './search-input';
+import { NoFiltersMessage } from './no-filters-message';
+import { FilterCategoryContainer } from './filter-category-container';
+import { AvailableFiltersSectionProps } from './types';
 
-// TODO: Use state to hide filters which are already in the queue
-export function AvailableFiltersSection(props: {
-    hasImages: boolean;
-    value: string;
-    onSearch: ChangeEventHandler<HTMLInputElement>;
-    filteredCategories: {
-        id: FilterCategory;
-        name: string;
-        filters: FilterMetadata[];
-    }[];
-}) {
-    const { state, dispatch } = useFiltersQueue();
-    const hasMatchedFilters = props.filteredCategories.length > 0;
+function AvailableFiltersSectionInternal({
+    hasImages,
+    value,
+    onSearch,
+    filteredCategories,
+}: AvailableFiltersSectionProps) {
+    const { dispatch, state } = useFiltersQueue();
+    const queuedFiltersTypes = new Set(state.queuedFilters.map((f) => f.type));
+    const availableCategories = filteredCategories
+        .map((c) => ({
+            ...c,
+            filters: c.filters.filter((f) => !queuedFiltersTypes.has(f.id)),
+        }))
+        .filter((c) => c.filters.length > 0);
 
-    const addFilter = (filter: FilterMetadata) => {
-        dispatch({
-            type: FilterQueueActionType.Append,
-            payload: filter.id,
-        });
-    };
+    const hasMatchedFilters = availableCategories.length > 0;
 
-    // TODO: Reduce the number of re-renders by using a memoized version of the filter card
-    // TODO: Reduce complexity of html
+    const handleAddFilter = useCallback(
+        (filter: FilterMetadata) => {
+            dispatch({
+                type: FilterQueueActionType.Append,
+                payload: filter.id,
+            });
+        },
+        [dispatch],
+    );
+
     return (
         <Card>
             <CardHeader className="pb-3">
@@ -49,56 +50,30 @@ export function AvailableFiltersSection(props: {
                     Available Filters
                 </CardTitle>
                 <CardDescription>
-                    {props.hasImages
+                    {hasImages
                         ? 'Drag these filters to the queue above'
                         : 'Upload images to enable filters'}
                 </CardDescription>
-
-                <div className="relative mt-2">
-                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                        placeholder="Search filters..."
-                        value={props.value}
-                        onChange={props.onSearch}
-                        className="pl-8"
-                        disabled={!props.hasImages}
-                    />
-                </div>
+                <SearchInput
+                    value={value}
+                    onSearch={onSearch}
+                    disabled={!hasImages}
+                />
             </CardHeader>
+
             <CardContent className="p-0">
                 <div
-                    className={`max-h-[400px] overflow-y-auto pr-1.5 pl-3 pb-3 ${!props.hasImages ? 'opacity-60' : ''}`}>
+                    className={`max-h-[400px] overflow-y-auto pr-1.5 pl-3 pb-3 ${!hasImages ? 'opacity-60' : ''}`}>
                     {!hasMatchedFilters ? (
-                        <div className="flex flex-col items-center justify-center h-20 text-muted-foreground p-4">
-                            <p className="text-sm">
-                                No filters match your search
-                            </p>
-                        </div>
+                        <NoFiltersMessage />
                     ) : (
-                        props.filteredCategories.map((category, index) => (
-                            <div
+                        availableCategories.map((category) => (
+                            <FilterCategoryContainer
                                 key={category.id}
-                                className={index > 0 ? 'mt-6' : 'mt-3'}>
-                                <h3 className="text-sm font-semibold text-muted-foreground mb-2 uppercase tracking-wide">
-                                    {category.name}
-                                </h3>
-                                <div className="space-y-2">
-                                    {category.filters.map((filter) => (
-                                        <a
-                                            onClick={() =>
-                                                props.hasImages &&
-                                                addFilter(filter)
-                                            }
-                                            key={filter.id}>
-                                            <FilterCardAvailable
-                                                key={filter.id}
-                                                filter={filter}
-                                                hasImages={props.hasImages}
-                                            />
-                                        </a>
-                                    ))}
-                                </div>
-                            </div>
+                                category={category}
+                                hasImages={hasImages}
+                                onAddFilter={handleAddFilter}
+                            />
                         ))
                     )}
                 </div>
@@ -106,3 +81,5 @@ export function AvailableFiltersSection(props: {
         </Card>
     );
 }
+
+export const AvailableFiltersSection = memo(AvailableFiltersSectionInternal);

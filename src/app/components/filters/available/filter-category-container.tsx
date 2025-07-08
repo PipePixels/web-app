@@ -38,4 +38,4 @@ function FilterCategoryInternal({
     );
 }
 
-export const FilterCategory = memo(FilterCategoryInternal);
+export const FilterCategoryContainer = memo(FilterCategoryInternal);

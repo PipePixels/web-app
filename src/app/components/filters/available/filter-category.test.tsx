@@ -1,6 +1,9 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { FilterCategory, FilterCategoryProps } from './filter-category';
+import {
+    FilterCategoryContainer,
+    FilterCategoryProps,
+} from './filter-category-container';
 import {
     FilterCategory as FilterCategoryEnum,
     FilterMetadata,
@@ -43,12 +46,12 @@ describe('FilterCategory', () => {
     };
 
     it('should render the category name', () => {
-        render(<FilterCategory {...defaultProps} />);
+        render(<FilterCategoryContainer {...defaultProps} />);
         expect(screen.getByText('Detail')).toBeInTheDocument();
     });
 
     it('should render filters within the category', () => {
-        render(<FilterCategory {...defaultProps} />);
+        render(<FilterCategoryContainer {...defaultProps} />);
         const listItem = screen.getByRole('listitem');
         expect(listItem).toHaveTextContent('Test Filter');
         expect(listItem).toBeInTheDocument();
@@ -58,7 +61,7 @@ describe('FilterCategory', () => {
     it('should call onAddFilter when a filter is clicked and hasImages is true', () => {
         const mockOnAddFilter = jest.fn();
         render(
-            <FilterCategory
+            <FilterCategoryContainer
                 {...defaultProps}
                 onAddFilter={mockOnAddFilter}
                 hasImages={true}
@@ -74,7 +77,7 @@ describe('FilterCategory', () => {
     it('should not call onAddFilter when a filter is clicked and hasImages is false', () => {
         const mockOnAddFilter = jest.fn();
         render(
-            <FilterCategory
+            <FilterCategoryContainer
                 {...defaultProps}
                 onAddFilter={mockOnAddFilter}
                 hasImages={false}
@@ -88,7 +91,7 @@ describe('FilterCategory', () => {
     });
 
     it('should disable buttons when hasImages is false', () => {
-        render(<FilterCategory {...defaultProps} hasImages={false} />);
+        render(<FilterCategoryContainer {...defaultProps} hasImages={false} />);
 
         const filterButton = screen.getByRole('button');
         expect(filterButton).toBeDisabled();
@@ -103,7 +106,7 @@ describe('FilterCategory', () => {
             },
         };
 
-        render(<FilterCategory {...multipleFilters} />);
+        render(<FilterCategoryContainer {...multipleFilters} />);
         const allItems = screen.getAllByRole('listitem');
         expect(allItems[0]).toBeInTheDocument();
         expect(allItems[1]).toBeInTheDocument();

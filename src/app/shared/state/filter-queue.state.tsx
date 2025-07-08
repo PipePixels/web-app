@@ -13,7 +13,7 @@ export interface FilterQueued {
     handler: FilterOperation<never>;
 }
 
-interface FilterQueueContextType {
+export interface FilterQueueContextType {
     queuedFilters: FilterQueued[];
 }
 

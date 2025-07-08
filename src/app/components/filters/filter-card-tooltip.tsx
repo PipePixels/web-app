@@ -1,12 +1,11 @@
-import { FilterMetadata } from '@/core/domain/filters/filter-metadata/filter-metadata';
 import {
     Tooltip,
     TooltipContent,
     TooltipProvider,
     TooltipTrigger,
-} from '@/components/ui/tooltip';
+} from '@/app/ui/tooltip';
+import { FilterMetadata } from '@/core/domain/filters/filter-metadata/filter-metadata';
 import { Info } from 'lucide-react';
-import type React from 'react';
 
 export function FilterCardTooltip(props: { filter: FilterMetadata }) {
     return (
@@ -15,14 +14,10 @@ export function FilterCardTooltip(props: { filter: FilterMetadata }) {
                 <TooltipTrigger asChild>
                     <Info className="h-4 w-4 text-muted-foreground" />
                 </TooltipTrigger>
+
                 <TooltipContent className="bg-popover text-popover-foreground border-border max-w-xs">
                     <div className="space-y-2">
                         <p>{props.filter.description}</p>
-                        <div className="text-xs text-muted-foreground pt-1 border-t">
-                            Cost: {props.filter.creditCost} credit
-                            {props.filter.creditCost > 1 ? 's' : ''} per
-                            operation
-                        </div>
                     </div>
                 </TooltipContent>
             </Tooltip>
