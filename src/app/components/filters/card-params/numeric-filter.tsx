@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/app/ui/input';
 
@@ -16,6 +16,14 @@ function NumericFilterInternal({
     onUpdate,
 }: NumericFilterProps) {
     const [value, setValue] = useState<number>(defaultValue);
+    const onInputChange = useCallback(
+        (event: ChangeEvent<HTMLInputElement>) => {
+            const newValue = parseInt(event.target.value) ?? 0;
+            const clampedValue = Math.min(Math.max(newValue, min), max);
+            setValue(clampedValue);
+        },
+        [],
+    );
 
     useEffect(() => {
         onUpdate(value);
@@ -35,7 +43,7 @@ function NumericFilterInternal({
                 value={value}
                 min={min}
                 max={max}
-                onChange={(e) => setValue(Number(e.target.value))}
+                onChange={onInputChange}
             />
         </div>
     );
