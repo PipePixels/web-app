@@ -11,15 +11,15 @@ export const flip: FlipOperation =
         if (!ctx) {
             throw new Error('Canvas context not available');
         }
-
         ctx.save();
 
-        if (horizontal) {
+        if (horizontal && vertical) {
+            ctx.translate(image.width, image.height);
+            ctx.scale(-1, -1);
+        } else if (horizontal) {
             ctx.translate(image.width, 0);
             ctx.scale(-1, 1);
-        }
-
-        if (vertical) {
+        } else if (vertical) {
             ctx.translate(0, image.height);
             ctx.scale(1, -1);
         }
