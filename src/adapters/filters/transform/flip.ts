@@ -2,39 +2,25 @@ import { FlipOperation } from '@/core/domain/filters/interfaces/operations/trans
 
 export const flip: FlipOperation =
     ({ horizontal, vertical }) =>
-    (image) => {
-        const canvas = document.createElement('canvas');
-        canvas.width = image.width;
-        canvas.height = image.height;
-        const ctx = canvas.getContext('2d');
+    (image: ImageData): ImageData => {
+        const { width, height, data } = image;
+        const result = new Uint8ClampedArray(data.length);
 
-        if (!ctx) {
-            throw new Error('Canvas context not available');
-        }
-        ctx.save();
+        for (let y = 0; y < height; y++) {
+            const srcY = vertical ? height - 1 - y : y;
 
-        if (horizontal && vertical) {
-            ctx.translate(image.width, image.height);
-            ctx.scale(-1, -1);
-        } else if (horizontal) {
-            ctx.translate(image.width, 0);
-            ctx.scale(-1, 1);
-        } else if (vertical) {
-            ctx.translate(0, image.height);
-            ctx.scale(1, -1);
+            for (let x = 0; x < width; x++) {
+                const srcX = horizontal ? width - 1 - x : x;
+
+                const srcIndex = (srcY * width + srcX) * 4;
+                const dstIndex = (y * width + x) * 4;
+
+                result[dstIndex] = data[srcIndex];
+                result[dstIndex + 1] = data[srcIndex + 1];
+                result[dstIndex + 2] = data[srcIndex + 2];
+                result[dstIndex + 3] = data[srcIndex + 3];
+            }
         }
 
-        const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = image.width;
-        tempCanvas.height = image.height;
-        const tempCtx = tempCanvas.getContext('2d');
-
-        if (!tempCtx) {
-            throw new Error('Temp canvas context not available');
-        }
-
-        tempCtx.putImageData(image, 0, 0);
-        ctx.drawImage(tempCanvas, 0, 0);
-        ctx.restore();
-        return ctx.getImageData(0, 0, image.width, image.height);
+        return new ImageData(result, width, height);
     };
