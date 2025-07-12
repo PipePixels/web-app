@@ -33,7 +33,6 @@ export const resize: ResizeOperation = (settings) => {
             throw new Error("You must provide 'width' or 'height'.");
         }
 
-        // Calcula a nova largura/altura mantendo proporção
         let newW: number, newH: number;
         const aspectRatio = srcW / srcH;
 
@@ -44,7 +43,6 @@ export const resize: ResizeOperation = (settings) => {
             newH = targetH;
             newW = Math.round(targetH * aspectRatio);
         } else {
-            // Se ambos forem fornecidos, ajusta para caber dentro mantendo proporção
             const scaleW = targetW! / srcW;
             const scaleH = targetH! / srcH;
             const scale = Math.min(scaleW, scaleH);
@@ -52,7 +50,6 @@ export const resize: ResizeOperation = (settings) => {
             newH = Math.round(srcH * scale);
         }
 
-        // Usa o resize rápido com dimensões ajustadas
         return resizeSimple({ width: newW, height: newH })(image);
     };
 };
