@@ -16,4 +16,8 @@ export type ResizeOperationParams = {
     height: number;
 };
 
+/**
+ * Resize the dimensions of an element to fit within a bounding box
+ * while preserving the aspect ratio.
+ */
 export type ResizeOperation = FilterOperation<ResizeOperationParams>;
