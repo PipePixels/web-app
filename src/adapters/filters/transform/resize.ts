@@ -21,7 +21,9 @@ const resizeSimple: ResizeOperation =
             }
         }
 
-        return new ImageData(dstData, targetWidth, targetHeight);
+        const result = new ImageData(targetWidth, targetHeight);
+        result.data.set(dstData);
+        return result;
     };
 
 export const resize: ResizeOperation = (settings) => {

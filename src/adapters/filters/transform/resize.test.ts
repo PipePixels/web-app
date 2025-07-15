@@ -10,7 +10,9 @@ function createTestImage(
     for (let i = 0; i < data.length; i += 4) {
         data.set(color, i);
     }
-    return new ImageData(data, width, height);
+    const image = new ImageData(width, height);
+    image.data.set(data);
+    return image;
 }
 
 it('resizes with only width, preserving aspect ratio', () => {
