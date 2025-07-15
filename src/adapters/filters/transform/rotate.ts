@@ -1,38 +1,72 @@
 import { RotateOperation } from '@/core/domain/filters/interfaces/operations/transform/rotate';
 
-export const rotate: RotateOperation =
-    ({ angle }) =>
-    (image) => {
-        const radians = (angle * Math.PI) / 180;
-        const sin = Math.abs(Math.sin(radians));
-        const cos = Math.abs(Math.cos(radians));
-        const newWidth = Math.ceil(image.width * cos + image.height * sin);
-        const newHeight = Math.ceil(image.width * sin + image.height * cos);
+export const rotate: RotateOperation = ({ angle }) => {
+    return (image: ImageData): ImageData => {
+        const { width, height, data } = image;
 
-        const canvas = document.createElement('canvas');
-        canvas.width = newWidth;
-        canvas.height = newHeight;
-        const ctx = canvas.getContext('2d');
+        // Apenas ângulos múltiplos de 90
+        const normalizedAngle = ((angle % 360) + 360) % 360;
 
-        if (!ctx) {
-            throw new Error('Canvas context not available');
+        let newWidth = width;
+        let newHeight = height;
+
+        if (normalizedAngle === 90 || normalizedAngle === 270) {
+            newWidth = height;
+            newHeight = width;
         }
 
-        // Centraliza e rotaciona
-        ctx.translate(newWidth / 2, newHeight / 2);
-        ctx.rotate(radians);
-        ctx.translate(-image.width / 2, -image.height / 2);
+        const result = new Uint8ClampedArray(newWidth * newHeight * 4);
 
-        const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = image.width;
-        tempCanvas.height = image.height;
-        const tempCtx = tempCanvas.getContext('2d');
+        const getPixel = (x: number, y: number) => {
+            const idx = (y * width + x) * 4;
+            return data.slice(idx, idx + 4);
+        };
 
-        if (!tempCtx) {
-            throw new Error('Temp canvas context not available');
+        const setPixel = (
+            x: number,
+            y: number,
+            rgba: Uint8ClampedArray | number[],
+        ) => {
+            const idx = (y * newWidth + x) * 4;
+            result.set(rgba, idx);
+        };
+
+        for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+                const pixel = getPixel(x, y);
+
+                let newX = x;
+                let newY = y;
+
+                switch (normalizedAngle) {
+                    case 90:
+                        newX = height - 1 - y;
+                        newY = x;
+                        break;
+                    case 180:
+                        newX = width - 1 - x;
+                        newY = height - 1 - y;
+                        break;
+                    case 270:
+                        newX = y;
+                        newY = width - 1 - x;
+                        break;
+                    case 0:
+                        newX = x;
+                        newY = y;
+                        break;
+                    default:
+                        throw new Error(
+                            'Unsupported angle. Use 0, 90, 180, or 270.',
+                        );
+                }
+
+                setPixel(newX, newY, pixel);
+            }
         }
 
-        tempCtx.putImageData(image, 0, 0);
-        ctx.drawImage(tempCanvas, 0, 0);
-        return ctx.getImageData(0, 0, newWidth, newHeight);
+        const output = new ImageData(newWidth, newHeight);
+        output.data.set(result);
+        return output;
     };
+};
