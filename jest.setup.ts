@@ -1,12 +1,13 @@
 import '@testing-library/jest-dom';
+import 'jest-canvas-mock';
 
 class ResizeObserverMock {
     observe() {}
-
     unobserve() {}
-
     disconnect() {}
 }
+
+global.ResizeObserver = ResizeObserverMock;
 
 // @ts-ignore
 global.ImageData = class ImageData {
@@ -14,15 +15,9 @@ global.ImageData = class ImageData {
     width: number;
     height: number;
 
-    constructor(
-        data: Uint8ClampedArray | number[],
-        width: number,
-        height: number,
-    ) {
-        this.data = new Uint8ClampedArray(data);
+    constructor(width: number, height: number, data?: Uint8ClampedArray) {
         this.width = width;
         this.height = height;
+        this.data = data || new Uint8ClampedArray(width * height * 4);
     }
 };
-
-global.ResizeObserver = ResizeObserverMock;
