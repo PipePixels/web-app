@@ -1,4 +1,3 @@
-import 'jest-canvas-mock';
 import { rotate } from './rotate';
 
 const red = [255, 0, 0, 255];

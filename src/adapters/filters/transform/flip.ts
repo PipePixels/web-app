@@ -4,7 +4,7 @@ export const flip: FlipOperation =
     ({ horizontal, vertical }) =>
     (image: ImageData): ImageData => {
         const { width, height, data } = image;
-        const result = new Uint8ClampedArray(data.length);
+        const resultData = new Uint8ClampedArray(data.length);
 
         for (let y = 0; y < height; y++) {
             const srcY = vertical ? height - 1 - y : y;
@@ -15,12 +15,13 @@ export const flip: FlipOperation =
                 const srcIndex = (srcY * width + srcX) * 4;
                 const dstIndex = (y * width + x) * 4;
 
-                result[dstIndex] = data[srcIndex];
-                result[dstIndex + 1] = data[srcIndex + 1];
-                result[dstIndex + 2] = data[srcIndex + 2];
-                result[dstIndex + 3] = data[srcIndex + 3];
+                resultData[dstIndex] = data[srcIndex];
+                resultData[dstIndex + 1] = data[srcIndex + 1];
+                resultData[dstIndex + 2] = data[srcIndex + 2];
+                resultData[dstIndex + 3] = data[srcIndex + 3];
             }
         }
-
-        return new ImageData(result, width, height);
+        const result = new ImageData(width, height);
+        result.data.set(resultData);
+        return result;
     };

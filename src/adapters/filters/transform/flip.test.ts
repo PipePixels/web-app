@@ -1,136 +1,59 @@
 import { flip } from './flip';
 import { FlipOperationParams } from '@/core/domain/filters/interfaces/operations/transform/flip';
 
+function getImageData(
+    width: number,
+    height: number,
+    data: ArrayLike<number>,
+): ImageData {
+    const image = new ImageData(width, height);
+    image.data.set(new Uint8ClampedArray(data));
+    return image;
+}
+
 describe('flip operation', () => {
     const imageSize = { width: 3, height: 2 };
     let mockCanvas: HTMLCanvasElement;
     let mockContext: CanvasRenderingContext2D;
-    const imageData = new ImageData(
-        new Uint8ClampedArray([
-            255,
-            0,
-            0,
-            255, // Red pixel
-            0,
-            0,
-            255,
-            255, // Blue pixel
-            0,
-            255,
-            0,
-            255, // Green pixel
+    const red = [255, 0, 0, 255];
+    const blue = [0, 0, 255, 255];
+    const green = [0, 255, 0, 255];
+    const yellow = [255, 255, 0, 255];
+    const black = [0, 0, 0, 255];
+    const white = [255, 255, 255, 255];
 
-            255,
-            255,
-            0,
-            255, // Yellow pixel
-            0,
-            0,
-            0,
-            255, // Black pixel
-            255,
-            255,
-            255,
-            255, // White pixel
-        ]),
-        imageSize.width,
-        imageSize.height,
-    );
-    const flippedHorizontal = new ImageData(
-        new Uint8ClampedArray([
-            0,
-            255,
-            0,
-            255, // Green
-            0,
-            0,
-            255,
-            255, // Blue
-            255,
-            0,
-            0,
-            255, // Red
-
-            255,
-            255,
-            255,
-            255, // White
-            0,
-            0,
-            0,
-            255, // Black
-            255,
-            255,
-            0,
-            255, // Yellow
-        ]),
-        imageSize.width,
-        imageSize.height,
-    );
-    const flippedVertical = new ImageData(
-        new Uint8ClampedArray([
-            255,
-            255,
-            0,
-            255, // Yellow
-            0,
-            0,
-            0,
-            255, // Black
-            255,
-            255,
-            255,
-            255, // White
-
-            255,
-            0,
-            0,
-            255, // Red
-            0,
-            0,
-            255,
-            255, // Blue
-            0,
-            255,
-            0,
-            255, // Green
-        ]),
-        imageSize.width,
-        imageSize.height,
-    );
-    const flippedBoth = new ImageData(
-        new Uint8ClampedArray([
-            // Linha 1 (invertida)
-            255,
-            255,
-            255,
-            255, // Branco
-            0,
-            0,
-            0,
-            255, // Preto
-            255,
-            255,
-            0,
-            255, // Amarelo
-
-            // Linha 0 (invertida)
-            0,
-            255,
-            0,
-            255, // Verde
-            0,
-            0,
-            255,
-            255, // Azul
-            255,
-            0,
-            0,
-            255, // Vermelho
-        ]),
-        imageSize.width,
-        imageSize.height,
-    );
+    const imageData = getImageData(imageSize.width, imageSize.height, [
+        ...red, // Red pixel
+        ...blue, // Blue pixel
+        ...green, // Green pixel
+        ...yellow, // Yellow pixel
+        ...black, // Black pixel
+        ...white, // White pixel
+    ]);
+    const flippedHorizontal = getImageData(imageSize.width, imageSize.height, [
+        ...green, // Green pixel
+        ...blue, // Blue pixel
+        ...red, // Red pixel
+        ...white, // White pixel
+        ...black, // Black pixel
+        ...yellow, // Yellow pixel
+    ]);
+    const flippedVertical = getImageData(imageSize.width, imageSize.height, [
+        ...yellow, // Yellow pixel
+        ...black, // Black pixel
+        ...white, // White pixel
+        ...red, // Red pixel
+        ...blue, // Blue pixel
+        ...green, // Green pixel
+    ]);
+    const flippedBoth = getImageData(imageSize.width, imageSize.height, [
+        ...white, // White pixel
+        ...black, // Black pixel
+        ...yellow, // Yellow pixel
+        ...green, // Green pixel
+        ...blue, // Blue pixel
+        ...red, // Red pixel
+    ]);
 
     beforeEach(() => {
         mockContext = {
