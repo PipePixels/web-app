@@ -1,16 +1,16 @@
 import { brightness } from './brightness';
 
-const createImageData = (pixels: number[]): ImageData => {
+const createImageData = (pixels: ArrayLike<number>): ImageData => {
     const data = new Uint8ClampedArray(pixels);
     return { data, width: 1, height: 1 } as ImageData;
 };
 
 describe('brightness', () => {
-    let imageData: ImageData;
-
-    beforeEach(() => {
-        // Create a small 2x2 image data with known values
-        const data = new Uint8ClampedArray([
+    const blackPixel = new Uint8ClampedArray([0, 0, 0, 255]);
+    const whitePixel = new Uint8ClampedArray([255, 255, 255, 255]);
+    const grayPixel = new Uint8ClampedArray([128, 128, 128, 255]);
+    const imageData: ImageData = new ImageData(
+        new Uint8ClampedArray([
             100,
             100,
             100,
@@ -27,89 +27,99 @@ describe('brightness', () => {
             50,
             50,
             255, // Pixel 4: RGB(50,50,50)
-        ]);
-        imageData = new ImageData(data, 2, 2);
-    });
-
-    it('should not change pixels when brightness value is 0', () => {
-        const result = brightness({ value: 0 })(imageData);
-        expect([...result.data.slice(0, 3)]).toEqual([100, 100, 100]);
-    });
-
-    it('should increase brightness correctly with positive value', () => {
-        const result = brightness({ value: 50 })(imageData);
-        expect([...result.data.slice(0, 3)]).toEqual([228, 228, 228]);
-    });
-
-    it('should decrease brightness correctly with negative value', () => {
-        const result = brightness({ value: -50 })(imageData);
-        const expectedValue = Math.max(0, 100 - 127.5);
-        expect([...result.data.slice(0, 3)]).toEqual([
-            expectedValue,
-            expectedValue,
-            expectedValue,
-        ]);
-    });
-
-    it('should make the image completely black with value -100', () => {
-        const image = createImageData([100, 150, 200, 255]);
-        const result = brightness({ value: -100 })(image);
-        expect([...result.data.slice(0, 4)]).toEqual([0, 0, 0, 255]);
-    });
-
-    it('should make the image completely white with value 100', () => {
-        const image = createImageData([100, 150, 200, 255]);
-        const result = brightness({ value: 100 })(image);
-        expect([...result.data.slice(0, 4)]).toEqual([255, 255, 255, 255]);
-    });
-
-    it('should clamp brightness value to maximum 100', () => {
-        const result = brightness({ value: 150 })(imageData);
-        const expectedValue = Math.min(255, 100 + 255);
-        expect([...result.data.slice(0, 3)]).toEqual([
-            expectedValue,
-            expectedValue,
-            expectedValue,
-        ]);
-    });
-
-    it('should clamp brightness value to minimum -100', () => {
-        const result = brightness({ value: -150 })(imageData);
-        const expectedValue = Math.max(0, 100 - 255);
-        expect([...result.data.slice(0, 3)]).toEqual([
-            expectedValue,
-            expectedValue,
-            expectedValue,
-        ]);
-    });
+        ]),
+        2,
+        2,
+    );
 
     it('should preserve alpha channel', () => {
-        const result = brightness({ value: 50 })(imageData);
-        expect([
-            result.data[3],
-            result.data[7],
-            result.data[11],
-            result.data[15],
-        ]).toEqual([255, 255, 255, 255]);
+        const result = brightness({ value: -50 })(imageData);
+        const pixelsAlpha = [
+            result.data[3], // Alpha for Pixel 1
+            result.data[7], // Alpha for Pixel 2
+            result.data[11], // Alpha for Pixel 3
+            result.data[15], // Alpha for Pixel 4
+        ];
+        expect(pixelsAlpha).toEqual([255, 255, 255, 255]);
     });
 
-    it('should handle edge case with full black pixels', () => {
-        const blackImage = new ImageData(
-            new Uint8ClampedArray([0, 0, 0, 255]),
-            1,
-            1,
-        );
-        const result = brightness({ value: 50 })(blackImage);
-        expect([...result.data.slice(0, 3)]).toEqual([128, 128, 128]);
+    describe('clamp values', () => {
+        it('should clamp brightness to maximum when value exceeds 100', () => {
+            const result = brightness({ value: 150 })(imageData);
+            const hasExceedingValues = result.data.some((value) => value > 255);
+            expect(hasExceedingValues).toBe(false);
+        });
+
+        it('should clamp brightness to minimum when value is below -100', () => {
+            const result = brightness({ value: -150 })(imageData);
+            const hasNegativeValues = result.data.some((value) => value < 0);
+            expect(hasNegativeValues).toBe(false);
+        });
     });
 
-    it('should handle edge case with full white pixels', () => {
-        const whiteImage = new ImageData(
-            new Uint8ClampedArray([255, 255, 255, 255]),
-            1,
-            1,
-        );
-        const result = brightness({ value: -50 })(whiteImage);
-        expect([...result.data.slice(0, 3)]).toEqual([128, 128, 128]);
+    describe('basic operations', () => {
+        it('should not change pixels when brightness value is 0', () => {
+            const result = brightness({ value: 0 })(imageData);
+            expect(result).toEqual(imageData);
+        });
+
+        it('should increase brightness correctly with positive value', () => {
+            const result = brightness({ value: 50 })(imageData);
+            const expectedData = new Uint8ClampedArray([
+                228,
+                228,
+                228,
+                255, // Pixel 1: RGB(228,228,228)
+                255,
+                255,
+                255,
+                255, // Pixel 2: RGB(255,255,255)
+                255,
+                255,
+                255,
+                255, // Pixel 3: RGB(255,255,255)
+                178,
+                178,
+                178,
+                255, // Pixel 4: RGB(178,178,178)
+            ]);
+            expect(result.data).toEqual(expectedData);
+        });
+
+        it('should decrease brightness correctly with negative value', () => {
+            const result = brightness({ value: -50 })(imageData);
+            const expectedValue = Math.max(0, 100 - 127.5);
+            expect([...result.data.slice(0, 3)]).toEqual([
+                expectedValue,
+                expectedValue,
+                expectedValue,
+            ]);
+        });
+    });
+
+    describe('edge values', () => {
+        it('should handle edge case with full black pixels', () => {
+            const blackImage = createImageData(blackPixel);
+            const result = brightness({ value: 50 })(blackImage);
+            expect(result.data).toEqual(grayPixel);
+        });
+
+        it('should handle edge case with full white pixels', () => {
+            const whiteImage = createImageData(whitePixel);
+            const result = brightness({ value: -50 })(whiteImage);
+            expect(result.data).toEqual(grayPixel);
+        });
+
+        it('should make the image completely black with value -100', () => {
+            const image = createImageData(grayPixel);
+            const result = brightness({ value: -100 })(image);
+            expect(result.data).toEqual(blackPixel);
+        });
+
+        it('should make the image completely white with value 100', () => {
+            const image = createImageData(grayPixel);
+            const result = brightness({ value: 100 })(image);
+            expect(result.data).toEqual(whitePixel);
+        });
     });
 });
