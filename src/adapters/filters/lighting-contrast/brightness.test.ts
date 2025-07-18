@@ -1,33 +1,26 @@
 import { brightness } from './brightness';
-
-const createImageData = (pixels: ArrayLike<number>): ImageData => {
-    const data = new Uint8ClampedArray(pixels);
-    return { data, width: 1, height: 1 } as ImageData;
-};
+import { BLACK_PIXEL, clamp, createImageData, GRAY_PIXEL, WHITE_PIXEL } from '../test-utils/image';
 
 describe('brightness', () => {
-    const blackPixel = new Uint8ClampedArray([0, 0, 0, 255]);
-    const whitePixel = new Uint8ClampedArray([255, 255, 255, 255]);
-    const grayPixel = new Uint8ClampedArray([128, 128, 128, 255]);
-    const imageData: ImageData = new ImageData(
-        new Uint8ClampedArray([
+    const imageData = createImageData(
+        [
             100,
             100,
             100,
-            255, // Pixel 1: RGB(100,100,100)
+            255, // Pixel 1
             150,
             150,
             150,
-            255, // Pixel 2: RGB(150,150,150)
+            255, // Pixel 2
             200,
             200,
             200,
-            255, // Pixel 3: RGB(200,200,200)
+            255, // Pixel 3
             50,
             50,
             50,
-            255, // Pixel 4: RGB(50,50,50)
-        ]),
+            255, // Pixel 4
+        ],
         2,
         2,
     );
@@ -35,10 +28,10 @@ describe('brightness', () => {
     it('should preserve alpha channel', () => {
         const result = brightness({ value: -50 })(imageData);
         const pixelsAlpha = [
-            result.data[3], // Alpha for Pixel 1
-            result.data[7], // Alpha for Pixel 2
-            result.data[11], // Alpha for Pixel 3
-            result.data[15], // Alpha for Pixel 4
+            result.data[3],
+            result.data[7],
+            result.data[11],
+            result.data[15,
         ];
         expect(pixelsAlpha).toEqual([255, 255, 255, 255]);
     });
@@ -66,29 +59,15 @@ describe('brightness', () => {
         it('should increase brightness correctly with positive value', () => {
             const result = brightness({ value: 50 })(imageData);
             const expectedData = new Uint8ClampedArray([
-                228,
-                228,
-                228,
-                255, // Pixel 1: RGB(228,228,228)
-                255,
-                255,
-                255,
-                255, // Pixel 2: RGB(255,255,255)
-                255,
-                255,
-                255,
-                255, // Pixel 3: RGB(255,255,255)
-                178,
-                178,
-                178,
-                255, // Pixel 4: RGB(178,178,178)
+                228, 228, 228, 255, 255, 255, 255, 255, 255, 255, 255, 255, 178,
+                178, 178, 255
             ]);
             expect(result.data).toEqual(expectedData);
         });
 
         it('should decrease brightness correctly with negative value', () => {
             const result = brightness({ value: -50 })(imageData);
-            const expectedValue = Math.max(0, 100 - 127.5);
+            const expectedValue = clamp(100 - 127.5);
             expect([...result.data.slice(0, 3)]).toEqual([
                 expectedValue,
                 expectedValue,
@@ -99,27 +78,27 @@ describe('brightness', () => {
 
     describe('edge values', () => {
         it('should handle edge case with full black pixels', () => {
-            const blackImage = createImageData(blackPixel);
+            const blackImage = createImageData(BLACK_PIXEL);
             const result = brightness({ value: 50 })(blackImage);
-            expect(result.data).toEqual(grayPixel);
+            expect(result.data).toEqual(GRAY_PIXEL);
         });
 
         it('should handle edge case with full white pixels', () => {
-            const whiteImage = createImageData(whitePixel);
+            const whiteImage = createImageData(WHITE_PIXEL);
             const result = brightness({ value: -50 })(whiteImage);
-            expect(result.data).toEqual(grayPixel);
+            expect(result.data).toEqual(GRAY_PIXEL);
         });
 
         it('should make the image completely black with value -100', () => {
-            const image = createImageData(grayPixel);
+            const image = createImageData(GRAY_PIXEL);
             const result = brightness({ value: -100 })(image);
-            expect(result.data).toEqual(blackPixel);
+            expect(result.data).toEqual(BLACK_PIXEL);
         });
 
         it('should make the image completely white with value 100', () => {
-            const image = createImageData(grayPixel);
+            const image = createImageData(GRAY_PIXEL);
             const result = brightness({ value: 100 })(image);
-            expect(result.data).toEqual(whitePixel);
+            expect(result.data).toEqual(WHITE_PIXEL);
         });
     });
 });
