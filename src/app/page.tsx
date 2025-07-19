@@ -1,7 +1,10 @@
-import HomePage from '@/app/pages/home/home';
-
 import { Metadata } from 'next';
 import React from 'react';
+import { CreditsProvider } from './shared/state/credits-context';
+import { ImageManager } from './components/new/image-manager-section';
+import { ImagesProvider } from './components/new/images-context';
+import { FiltersQueueProvider } from './shared/state/filter-queue.state';
+import Sidebar from './components/filters/sidebar';
 
 export const metadata: Metadata = {
     title: 'PipePixels',
@@ -10,8 +13,18 @@ export const metadata: Metadata = {
 
 export default function Home() {
     return (
-        <div className="grid">
-            <HomePage></HomePage>
+        <div className="flex flex-col min-h-screen">
+            <CreditsProvider>
+                <ImagesProvider>
+                    <FiltersQueueProvider>
+                        <div className="flex flex-col md:flex-row flex-1 container mx-auto py-4 px-4 md:px-6 gap-6">
+                            <Sidebar />
+                            <ImageManager />
+                        </div>
+                    </FiltersQueueProvider>
+                </ImagesProvider>
+            </CreditsProvider>
+            {/*<Footer />*/}
         </div>
     );
 }

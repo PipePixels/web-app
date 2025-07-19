@@ -43,5 +43,10 @@
     <codeStyleSettings language="TypeScript">
       <option name="SOFT_MARGINS" value="80" />
     </codeStyleSettings>
+    <codeStyleSettings language="yaml">
+      <indentOptions>
+        <option name="INDENT_SIZE" value="4" />
+      </indentOptions>
+    </codeStyleSettings>
   </code_scheme>
 </component>

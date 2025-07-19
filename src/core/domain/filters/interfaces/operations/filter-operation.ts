@@ -28,4 +28,8 @@ export enum FilterType {
     Clarity = 'Clarity',
     Sharpen = 'Sharpen',
     Smooth = 'Smooth',
+
+    Resize = 'Resize',
+    Rotate = 'Rotate',
+    Flip = 'Flip',
 }
