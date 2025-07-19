@@ -1,26 +1,19 @@
 import { brightness } from './brightness';
-import { BLACK_PIXEL, clamp, createImageData, GRAY_PIXEL, WHITE_PIXEL } from '../test-utils/image';
+import {
+    BLACK_PIXEL,
+    clamp,
+    createImageData,
+    GRAY_PIXEL,
+    WHITE_PIXEL,
+} from '../test-utils/image';
 
 describe('brightness', () => {
+    const PIXEL_100 = [100, 100, 100, 255];
+    const PIXEL_150 = [150, 150, 150, 255];
+    const PIXEL_200 = [200, 200, 200, 255];
+    const PIXEL_50 = [50, 50, 50, 255];
     const imageData = createImageData(
-        [
-            100,
-            100,
-            100,
-            255, // Pixel 1
-            150,
-            150,
-            150,
-            255, // Pixel 2
-            200,
-            200,
-            200,
-            255, // Pixel 3
-            50,
-            50,
-            50,
-            255, // Pixel 4
-        ],
+        [...PIXEL_100, ...PIXEL_150, ...PIXEL_200, ...PIXEL_50],
         2,
         2,
     );
@@ -31,7 +24,7 @@ describe('brightness', () => {
             result.data[3],
             result.data[7],
             result.data[11],
-            result.data[15,
+            result.data[15],
         ];
         expect(pixelsAlpha).toEqual([255, 255, 255, 255]);
     });
@@ -59,8 +52,16 @@ describe('brightness', () => {
         it('should increase brightness correctly with positive value', () => {
             const result = brightness({ value: 50 })(imageData);
             const expectedData = new Uint8ClampedArray([
-                228, 228, 228, 255, 255, 255, 255, 255, 255, 255, 255, 255, 178,
-                178, 178, 255
+                228,
+                228,
+                228,
+                255,
+                ...WHITE_PIXEL,
+                ...WHITE_PIXEL,
+                178,
+                178,
+                178,
+                255,
             ]);
             expect(result.data).toEqual(expectedData);
         });
